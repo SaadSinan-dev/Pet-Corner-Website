@@ -1,24 +1,19 @@
 # yaml-language-server: $schema=https://render.com/schema/render.yaml.json
-# Prepared configuration only. Importing this Blueprint creates paid resources.
+# Free API only. Supabase database/storage are created separately by the owner.
 services:
   - type: web
     name: pet-corner-api
     runtime: docker
-    plan: 0.5c-512mb
+    plan: free
     region: frankfurt
     branch: main
     rootDir: api
-    # Docker paths are relative to rootDir; both point inside api/.
     dockerfilePath: ./Dockerfile
     dockerContext: .
     dockerCommand: npm run start:production
     autoDeployTrigger: checksPass
     healthCheckPath: /api/v1/health
     numInstances: 1
-    disk:
-      name: pet-corner-uploads
-      mountPath: /app/uploads
-      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
@@ -27,36 +22,26 @@ services:
       - key: PORT
         value: '10000'
       - key: DATABASE_URL
-        fromDatabase:
-          name: pet-corner-db
-          property: connectionString
+        sync: false
+      - key: DIRECT_URL
+        sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: ORDER_TOKEN_SECRET
         generateValue: true
       - key: STORAGE_PROVIDER
-        value: local
-      - key: UPLOAD_DIR
-        value: /app/uploads
+        value: supabase
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: product-images
       - key: CORS_ORIGINS
         sync: false
       - key: APP_PUBLIC_URL
         sync: false
       - key: ADMIN_PUBLIC_URL
         sync: false
-      - key: PUBLIC_UPLOAD_BASE_URL
-        sync: false
-      # Use false/0 unless the operator has confirmed the actual proxy hop count (1-5).
       - key: TRUST_PROXY
         sync: false
-
-databases:
-  - name: pet-corner-db
-    databaseName: petcorner
-    user: petcorner
-    postgresMajorVersion: '18'
-    plan: 0.1c-256mb
-    region: frankfurt
-    diskSizeGB: 1
-    # Application connections use Render's private connection string.
-    ipAllowList: []

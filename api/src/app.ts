@@ -12,7 +12,7 @@ import { resolve } from 'node:path';
 import { AdminGuard, AuthController } from './auth';
 import { AdminController, StorefrontController } from './controllers';
 import { Database } from './database';
-import { StorageService } from './storage';
+import { safeImageName, storageAdapter, StorageService } from './storage';
 import { StoreService } from './store';
 import { documentResponses } from './openapi';
 import { validateConfig } from './config';
@@ -38,6 +38,8 @@ class SafeErrors implements ExceptionFilter {
       if (error.code === 'P2025') { status = 404; message = 'المحتوى المطلوب غير موجود'; }
       if (['P2003', 'P2000', 'P2004'].includes(error.code)) { status = 400; message = 'البيانات غير صالحة أو مرتبطة بمحتوى غير موجود'; }
       if (error.code === 'P2034') { status = 409; message = 'تعارضت العملية مع تعديل آخر، يرجى المحاولة مجدداً'; }
+      if (['P1001', 'P1002', 'P1017', 'P2024'].includes(error.code)) { status = 503; message = 'تعذّر الاتصال بقاعدة البيانات، يرجى إعادة المحاولة'; }
+    } else if (error instanceof Prisma.PrismaClientInitializationError) { status = 503; message = 'تعذّر الاتصال بقاعدة البيانات، يرجى إعادة المحاولة';
     } else if (error instanceof Prisma.PrismaClientValidationError) { status = 400; message = 'تحقق من البيانات المدخلة'; }
     const response = host.switchToHttp().getResponse<Response>();
     response.status(status).json({ message, ...(code ? { code } : {}) });
@@ -68,7 +70,17 @@ export async function createApp() {
   app.enableCors({ origin: origins, methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key', 'X-Order-Token'], maxAge: 600 });
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: true, forbidUnknownValues: true, validationError: { target: false, value: false } }));
   app.useGlobalFilters(new SafeErrors());
-  app.useStaticAssets(resolve(process.env.UPLOAD_DIR ?? './uploads'), { prefix: '/uploads/', dotfiles: 'deny', index: false, fallthrough: false, maxAge: '7d', immutable: true });
+  if (process.env.STORAGE_PROVIDER === 'supabase') {
+    // Existing DB links retain /uploads/<filename>. Copy those files once with
+    // storage:migrate; the same names then resolve durably without rewriting history.
+    app.use('/uploads', (req: Request, res: Response) => {
+      const name = req.path.slice(1);
+      if (!['GET', 'HEAD'].includes(req.method) || !safeImageName(name)) { res.status(404).end(); return; }
+      res.redirect(307, storageAdapter().publicUrl(name));
+    });
+  } else {
+    app.useStaticAssets(resolve(process.env.UPLOAD_DIR ?? './uploads'), { prefix: '/uploads/', dotfiles: 'deny', index: false, fallthrough: false, maxAge: '7d', immutable: true });
+  }
   const config = new DocumentBuilder().setTitle('Pet Corner API').setDescription('Public store and protected administration APIs. Currency uses integer units; demo data requires an explicit seed command.').setVersion('1.0').addBearerAuth().build();
   SwaggerModule.setup('api/docs', app, documentResponses(SwaggerModule.createDocument(app, config)));
   app.enableShutdownHooks();

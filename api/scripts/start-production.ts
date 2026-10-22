@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { spawnSync } from 'node:child_process';
 import { validateConfig } from '../src/config';
+import { runMigrations } from './migrate';
 
 let configured = false;
 try {
@@ -16,8 +16,7 @@ try {
 if (configured) {
   // Deploy only checked-in migrations. Builds never connect to the database.
   // Prisma's migration lock also prevents concurrent migration execution.
-  const migration = spawnSync(process.execPath, [require.resolve('prisma/build/index.js'), 'migrate', 'deploy'], { stdio: 'inherit', env: process.env });
-  if (migration.status !== 0) {
+  if (runMigrations() !== 0) {
     process.stderr.write('Production startup stopped because database migrations did not succeed. The API was not started.\n');
     process.exitCode = 1;
   } else {

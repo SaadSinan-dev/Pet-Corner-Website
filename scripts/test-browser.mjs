@@ -32,7 +32,7 @@ const uploadDir = resolve(root, 'test-results', 'browser-uploads', database)
 await mkdir(uploadDir, { recursive: true })
 const env = {
   ...fileEnv, ...process.env,
-  NODE_ENV: 'test', DATABASE_URL: isolated.href, TEST_DATABASE_URL: isolated.href,
+  NODE_ENV: 'test', DATABASE_URL: isolated.href, DIRECT_URL: isolated.href, TEST_DATABASE_URL: isolated.href,
   PET_CORNER_BROWSER_DB: database,
   JWT_SECRET: randomBytes(48).toString('base64url'),
   ORDER_TOKEN_SECRET: randomBytes(48).toString('base64url'),

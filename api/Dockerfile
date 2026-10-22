@@ -8,8 +8,8 @@ COPY prisma ./prisma
 COPY src ./src
 COPY scripts ./scripts
 COPY test ./test
-RUN npm run db:generate && npm run build && mkdir -p uploads && chown -R node:node /app
-ENV NODE_ENV=production HOST=0.0.0.0 PORT=3001 UPLOAD_DIR=/app/uploads
+RUN npm run db:generate && npm run build && chown -R node:node /app
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=3001
 USER node
 EXPOSE 3001
 CMD ["npm", "run", "start:production"]

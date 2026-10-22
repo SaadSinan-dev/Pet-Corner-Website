@@ -8,7 +8,7 @@ From api/, install dependencies, copy .env.example to .env, then run npm run db:
 
 Required configuration: DATABASE_URL (PostgreSQL), JWT_SECRET and ORDER_TOKEN_SECRET (independent random secrets, at least 32 characters). Keep ORDER_TOKEN_SECRET stable to preserve receipt links. PORT defaults 3001 and must be 1–65535; HOST defaults 127.0.0.1. NODE_ENV accepts development,test,production. CORS_ORIGINS contains exact comma-separated HTTP(S) origins; localhost/127.0.0.1 ports 5174 and 5175 are development defaults. APP_PUBLIC_URL and ADMIN_PUBLIC_URL are optional locally, required in production, and their origins must appear in the CORS allowlist. Production requires explicit CORS_ORIGINS. A frontend deployment may use different origins through those variables.
 
-Only STORAGE_PROVIDER=local is implemented. UPLOAD_DIR defaults ./uploads and must be persistent/writable by the API user. PUBLIC_UPLOAD_BASE_URL defaults /uploads or may be a public HTTPS URL. With separate storefront/admin origins, configure an absolute HTTPS uploads URL served by the API/proxy so images resolve in either application. Setting an external URL does not provision storage or a CDN. No secrets belong in Vite variables.
+STORAGE_PROVIDER=supabase is required in production; local is supported only in development/test. The current setup is [Supabase Free + Render Free](free-hosting.md). Server-only Supabase Storage REST uploads return public URLs after a successful unauthenticated read check. DIRECT_URL selects session/direct migrations; DATABASE_URL remains the runtime pool. Legacy /uploads paths redirect to copied matching cloud object names. The following local-storage notes apply only to development: UPLOAD_DIR defaults ./uploads and must be persistent/writable by the API user. PUBLIC_UPLOAD_BASE_URL defaults /uploads or may be a public HTTPS URL. With separate storefront/admin origins, configure an absolute HTTPS uploads URL served by the API/proxy so images resolve in either application. Setting an external URL does not provision storage or a CDN. No secrets belong in Vite variables.
 
 ## Safe migrations and demo separation
 
@@ -50,3 +50,7 @@ Integration tests require TEST_DATABASE_URL to a dedicated database whose name e
 
 Windows note: Prisma generation updates client JS/types, but replacing an engine DLL loaded by a live API process can produce EPERM. The unchanged Prisma 6.19 engine successfully ran migration/integration checks; stop the API, run npm run db:generate, then restart to complete generation cleanly. The backend agent did not stop or restart the live service.
 
+
+## Free-hosting revision — 2026-10-22
+
+Render now has one Free service and no database/disk. Supabase Storage persists independently of API instances. Provider failures do not return a successful upload URL or silently fall back to disk. Additive RLS migrations protect all nine application tables and the Prisma migration-history table from public Supabase Data API roles; the trusted Prisma table owner retains access. Production rejects local storage, missing cloud config, anon keys, mismatched DB project/schema and transaction-mode migration connections. See free-hosting.md and verification-free-hosting-2026-10-22.md for current setup/tests and explicitly unverified cloud operations.

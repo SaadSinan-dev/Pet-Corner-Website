@@ -2,7 +2,7 @@
 
 Run `npm run test:e2e` from the project root with PostgreSQL reachable through api/.env DATABASE_URL (or explicit environment). The role needs CREATEDB permission. Install root, API and admin dependencies first.
 
-scripts/test-browser.mjs creates a unique UTF-8 pet_corner_browser_<time>_<random>_test database, applies both migrations, seeds synthetic inventory and starts isolated API/store/admin services on 3002/5176/5177. Temporary secrets and credentials are generated in memory. Merchant/local records are never modified. The database is retained for inspection, not automatically dropped. Screenshots and synthetic evidence live in ignored test-results/. Trace/video recording is off to avoid recording credentials or receipt tokens.
+scripts/test-browser.mjs creates a unique UTF-8 pet_corner_browser_<time>_<random>_test database, applies all migrations (currently four), seeds synthetic inventory and starts isolated API/store/admin services on 3002/5176/5177. Temporary secrets and credentials are generated in memory. Merchant/local records are never modified. The database is retained for inspection, not automatically dropped. Screenshots and synthetic evidence live in ignored test-results/. Trace/video recording is off to avoid recording credentials or receipt tokens.
 
 On Windows the config uses installed Edge. Override PLAYWRIGHT_EXECUTABLE_PATH or install Playwright Chromium elsewhere. Direct invocation without the wrapper's isolated database marker is rejected.
 

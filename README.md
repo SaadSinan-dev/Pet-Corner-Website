@@ -58,80 +58,52 @@ npm run dev:admin
 
 WhatsApp رابط رسالة جاهزة للمراجعة والإرسال اليدوي فقط؛ لا توجد Business API أو رسالة تلقائية. الطلب محفوظ قبل فتح الرابط. استعادة الاستجابة المفقودة تستخدم البيانات والمفتاح نفسيهما لمنع الطلب المكرر وخصم المخزون مرتين. الإيصال محمي برمز خاص مستقل عن رقم الطلب.
 
-## 3. البيئة والصور
+## 3. البيئة والإنتاج المجاني
 
-| الملف | المتغيرات |
+[دليل الاستضافة المجانية الكامل](docs/free-hosting.md) هو المرجع الحالي. البنية: واجهتا Cloudflare Pages، Render Free API، Supabase Free PostgreSQL وStorage. أزيلت قاعدة Render المدفوعة والـPersistent Disk من render.yaml. الإنتاج يرفض التخزين المحلي.
+
+| الملف | مكان القيم الفعلية |
 | --- | --- |
-| `api/.env` | `DATABASE_URL`، `TEST_DATABASE_URL` لقاعدة منفصلة تنتهي بـ`_test`، `JWT_SECRET` و`ORDER_TOKEN_SECRET` مستقلان وعشوائيان بطول 32 حرفًا أو أكثر، `NODE_ENV`، `HOST`، `PORT` |
-| `api/.env` | `CORS_ORIGINS` origins محددة مفصولة بفاصلة؛ `APP_PUBLIC_URL` و`ADMIN_PUBLIC_URL` إلزاميان للإنتاج ويجب أن يكون أصلهما ضمن القائمة |
-| `api/.env` | `STORAGE_PROVIDER=local`، `UPLOAD_DIR` دائم وقابل للكتابة، `PUBLIC_UPLOAD_BASE_URL=/uploads` أو URL صور HTTPS مطلق |
-| `.env` للمتجر | `VITE_API_BASE_URL=/api/v1`، `VITE_SITE_URL` للنطاق الحقيقي |
-| `admin/.env` | `VITE_ADMIN_API_BASE_URL=/api/v1`، `VITE_STOREFRONT_URL` لرابط المتجر، `VITE_ADMIN_SITE_URL` لتوثيق عنوان الإدارة |
+| .env.example وadmin/.env.example | تطوير محلي؛ local storage خارج الإنتاج فقط |
+| .env.production.example | Pages المتجر: VITE_API_BASE_URL وVITE_SITE_URL |
+| admin/.env.production.example | Pages الإدارة: VITE_ADMIN_API_BASE_URL وVITE_ADMIN_SITE_URL وVITE_STOREFRONT_URL |
+| api/.env.production.example | Render: DATABASE_URL وDIRECT_URL وأسرار JWT/الإيصال وCORS وعناوين التطبيقات ومتغيرات SUPABASE_* |
 
-كل متغير `VITE_` عام؛ لا تضع فيه أسرارًا. حافظ على `ORDER_TOKEN_SECRET` ثابتًا لصلاحية الإيصالات. راجع ملفات `.env.example` الثلاثة و`.env.deployment.example`.
+كل VITE_ عام. SUPABASE_SERVICE_ROLE_KEY يبقى في Backend فقط، ولا يدخل Git أو GitHub Actions أو React. الإعدادات المنشورة تُغيّر في لوحات المنصات ثم يُعاد بناء Pages؛ تعديل ملف محلي وحده لا يحدّث الإنتاج. رقم WhatsApp والسياسة بيانات فعلية محفوظة عبر الإدارة، لا متغيرات واجهة افتراضية.
 
-رفع JPEG/PNG/WebP فعلي حتى 5 MiB و16 مليون بكسل، مع إعادة ترميز WebP وأسماء عشوائية وإزالة metadata. التخزين المحلي فقط منفذ؛ تغيير URL لا ينشئ تخزينًا سحابيًا. Compose يوفر volume دائمًا وكلا Nginx يمرر `/uploads` إلى API، لذلك يعمل المسار النسبي على النطاقين. دون هذا proxy استخدم URL صور HTTPS مطلقًا. [مصادر الأصول](docs/assets.md).
+## 4. الفحوص والبناء
 
-## 4. الاختبارات والبناء
+من مجلد المشروع:
 
 ```powershell
 npm test
 npm --prefix admin test
 npm --prefix api run db:migrate:test
 npm --prefix api test
+npm run test:deploy
 npm run lint
 npm --prefix admin run lint
 npm run build:all
 npm run test:e2e
 ```
 
-البناء يشمل TypeScript للتطبيقات الثلاثة. اختبارات API تعيد تجهيز قاعدة `TEST_DATABASE_URL` المعزولة فقط. اختبارات المتصفح تنشئ قاعدة `pet_corner_browser_*_test` جديدة وخدمات `3002/5176/5177`؛ تحتاج صلاحية PostgreSQL `CREATEDB`. تبقى قاعدة الاختبار للمراجعة دون حذف تلقائي. على Windows يستخدم الاختبار Edge؛ خلاف ذلك ثبّت Chromium بـ`npx playwright install chromium` أو اضبط `PLAYWRIGHT_EXECUTABLE_PATH`.
+اختبارات DB تستخدم قاعدة _test فقط. المتصفح ينشئ قاعدة جديدة وخدمات 3002/5176/5177، بلا اتصال بإنتاجك. تكامل Supabase المحلي يستخدم HTTP fixture معزولًا؛ لا يدّعي اتصالًا بحساب سحابي. [تفاصيل المتصفح](e2e/README.md).
 
-التغطية: إدارة منتج وصورتين، شراء حقيقي، فقد استجابة واستعادتها دون تكرار، ظهور الطلب وتسعيره في الإدارة، الصلاحيات، شاشة البداية والثيم والقائمة، التحميل/الفراغ/الفشل وإعادة المحاولة. المقاسات: `320,360,375,390,430,768,1024,1280,1440` في الوضعين. [دليل المتصفح](e2e/README.md) و[تقرير الترقية والنتائج](docs/verification-2026-10-22.md).
+## 5. الربط اليدوي مرة واحدة
 
-## 5. النشر التلقائي عبر Git
+1. أنشئ Supabase Free، وانسخ اتصال Session pooler 5432 وProject URL والمفتاح الإداري، وأنشئ bucket product-images عامًا للقراءة بلا سياسات كتابة للزوار. راجع [جدول المتغيرات](docs/free-hosting.md).
+2. اربط Render Free بالمستودع باستخدام render.yaml وأدخل قيم api/.env.production.example. لا تنشئ Render PostgreSQL أو Disk؛ لا يوجد مورد مدفوع في القالب.
+3. اربط مشروعي Pages بفرع main وجذر المستودع نفسه: المتجر بأمر npm run pages:build:storefront ومخرجات dist؛ الإدارة بأمر npm run pages:build:admin ومخرجات admin/dist. استخدم Node24 وURLs HTTPS الفعلية.
+4. فعّل حماية main واشترط Quality checks قبل merge. Render مضبوط على After CI Checks Pass؛ Pages يبني بعد Push مستقلاً. لم تُختبر دورة Push→Deploy خارجيًا بعد.
+5. أنشئ المدير من جهازك، ثم اختبر رفع منتج وصورة فعلية وإعادة نشر API. Render Free لا يوفر Shell. خطوات المدير وMigrations ونقل الصور القديمة والفحص العام والنسخ الاحتياطي في الدليل.
 
-إعداد الربط الكامل في [دليل Git وCloudflare وRender](docs/git-deploy.md)، والنتائج الفعلية في [تقرير النشر التلقائي](docs/verification-automated-deployment-2026-10-22.md). فرع الإنتاج المقترح والمثبت في CI هو `main`؛ لا يوجد Git remote في هذا المجلد بعد، وربطه من طرفك.
-
-| المشروع | Root في Pages | Build command | Output |
-| --- | --- | --- | --- |
-| المتجر | جذر المستودع | `npm run pages:build:storefront` | `dist` |
-| الإدارة | جذر المستودع نفسه | `npm run pages:build:admin` | `admin/dist` |
-
-كلا المشروعين يستخدم Node 24 والنشر التلقائي من `main`. ضع قيم HTTPS الفعلية في Production Variables لكل مشروع، حسب `.env.production.example` الخاص به؛ لا يكفي تغيير `.env` المحلي. أمر Pages يشغّل lint/tests/TypeScript/build ويرفض API نسبيًا أو محليًا أو ناقصًا. ملف `deployment.json` داخل الحزمة يسجل SHA البناء وعناوينه العامة للتحقق من التحديث. Preview deployments معطلة أولًا حتى تجهيز staging منفصل.
-
-ملف `.github/workflows/ci.yml` يشغّل **Quality checks** على PR وPush إلى main بقاعدة PostgreSQL مؤقتة فقط، بلا أسرار إنتاج. فعّل حماية main واشترط نجاح هذا الفحص قبل merge؛ Pages يبدأ بناءه مستقلاً عن فحوص GitHub الأخرى. `render.yaml` يجهز API Docker وPostgreSQL وديسك صور دائمًا مع **After CI Checks Pass**؛ هو قالب لخدمات مدفوعة تنشئها أنت، وليس خدمة تم إنشاؤها.
-
-Runtime الخادم في `api/.env.production.example`: أسرار DB/JWT/الإيصال وCORS والنطاقات والتخزين على الاستضافة فقط. `start:production` يتحقق من الإعدادات ثم ينفذ `prisma migrate deploy` ويشغّل Nest؛ لا Seed أو Reset. رقم WhatsApp والسياسات بيانات تجارية تُحفظ عبر إعدادات لوحة الإدارة، وليست متغيرات Vite أو أرقامًا افتراضية.
-
-بعد الربط، استخدم فحصًا عامًا للقراءة فقط بالقيم الحقيقية:
+أوامر الصيانة تستخدم ملف إنتاج محليًا مستبعدًا من Git بالقيم التي وضعتها على المنصات:
 
 ```powershell
-npm run verify:public -- --store=https://REAL_STORE --admin=https://REAL_ADMIN --api=https://REAL_API/api/v1 --revision=COMMIT_SHA
+.\scripts\create-admin.ps1 -EnvironmentFile api/.env.production
+.\scripts\backup.ps1 -EnvironmentFile api/.env.production -PgDump "C:\PATH\TO\pg_dump.exe"
 ```
 
-استبدل أسماء REAL وCOMMIT_SHA بقيمك؛ الأمر يرفض localhost وHTTP ولا يرسل طلب شراء أو بيانات دخول. يتحقق من health والصلاحيات وCORS والمسارات والأيقونات ونسخة البناء. لا يُدّعى نجاح Push→Deploy حتى تنفذه على الحسابات المربوطة وتتحقق من SHA نفسه.
+Migrations تستخدم DIRECT_URL في subprocess ثم يبدأ API بـDATABASE_URL؛ لا Reset أو Seed. أضيفت حماية RLS لجداول التطبيق كي لا تتجاوز Supabase Data API صلاحيات Nest. تبقى البيانات المحلية؛ migrations لا تنقلها تلقائيًا إلى مشروع آخر. الصور القديمة /uploads تعمل بعد نسخ ملفات WebP بنفس الأسماء إلى bucket عبر storage:migrate؛ لا تُحذف المصادر أو سجلات المنتجات.
 
-### بديل Docker Compose على مضيف تديره
-
-
-جهّز نطاقين وDNS ومضيفًا. انسخ `.env.deployment.example` إلى `.env.deployment` السري. أدخل `POSTGRES_PASSWORD` عشوائيًا بصيغة hex صالحة لعنوان الاتصال، وسرّي JWT والإيصال، و`APP_PUBLIC_URL` و`ADMIN_PUBLIC_URL` بصيغة HTTPS وأصلهما في `CORS_ORIGINS`، و`VITE_SITE_URL` مطابقًا للمتجر. أدخل `STORE_DOMAIN` و`ADMIN_DOMAIN` دون scheme و`TLS_EMAIL` لـCaddy.
-
-```powershell
-docker compose --env-file .env.deployment -f compose.yaml -f compose.https.yaml config --quiet
-docker compose --env-file .env.deployment -f compose.yaml -f compose.https.yaml up -d --build
-```
-
-البناء مستقل عبر `Dockerfile` و`admin/Dockerfile` و`api/Dockerfile`. Compose يطبق migrations قبل API، مع health checks لـPostgreSQL و`/api/v1/health` و`/healthz`. Caddy يوفر HTTPS وشهادات محفوظة في volume؛ يحتاج DNS ووصولًا عامًا للمنفذين 80/443. دون ملف HTTPS، الواجهتان على loopback `8080/8081` خلف proxy تديره أنت.
-
-لإنشاء مدير داخل النشر، مرّر كلمة المرور من prompt مخفي إلى stdin للأمر `docker compose --env-file .env.deployment exec -T api node dist/scripts/create-admin.js YOUR_EMAIL`، دون وضعها ضمن الأمر أو التاريخ. بعدها أضف المنتجات والإعدادات التجارية في اللوحة.
-
-```powershell
-.\scripts\backup.ps1 -EnvironmentFile .env.deployment
-```
-
-السكربت ينسخ PostgreSQL بصيغة `pg_dump -Fc` وأرشيف الصور إلى `backups/` بنقل ثنائي آمن. خزّن نسخة مشفرة خارج المضيف، وجدول التشغيل، واختبر الاستعادة في قاعدة ومجلد مستقلين. لا تحذف volumes أثناء الترقية.
-
-**لم يُشغّل Docker أو HTTPS العام أو النسخ/الاستعادة فعليًا لأن Docker Engine غير متاح على الجهاز.** التحقق المحلي يشمل صيغة Compose والسكربتات وبناء التطبيقات. قبل الإطلاق يلزم اختبار الحاويات والشهادات والنطاقات والاستعادة، وضبط المراقبة وproxy/rate limits، واعتماد بيانات المنتجات والسياسات ورقم WhatsApp. لا توجد بوابة دفع إلكتروني موصولة.
-
-التفاصيل: [عقد API](docs/api-contract.md)، [الخادم](docs/backend.md)، [الإدارة](admin/README.md).
+الخطط المجانية لها نوم وcold starts وحصص، وليست ضمانًا لتشغيل تجاري مستمر. لم يُنشأ حساب خارجي، ولم تُختبر Supabase أو HTTPS أو backup/restore العام. [تقرير النتائج الحالية](docs/verification-free-hosting-2026-10-22.md)، [إعداد Git](docs/git-deploy.md)، [الخادم](docs/backend.md)، [عقد API](docs/api-contract.md).

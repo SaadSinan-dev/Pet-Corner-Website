@@ -1,6 +1,7 @@
 import 'dotenv/config';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { hashPassword } from '../src/auth';
+import { migrationDatabaseUrl } from '../src/config';
 
 async function main() {
   // Password is read from piped stdin, never from process arguments or shell history.
@@ -17,7 +18,10 @@ async function main() {
   }
   const password = Buffer.concat(chunks).toString('utf8').replace(/\r?\n$/, '');
   if (password.length < 14 || password.length > 256) throw new Error('Use a unique password containing 14–256 characters.');
-  const db = new PrismaClient();
+  // Render Free has no remote shell. This maintenance command can run locally
+  // against the explicitly selected production session/direct connection.
+  const options: Prisma.PrismaClientOptions = process.env.NODE_ENV === 'production' ? { datasourceUrl: migrationDatabaseUrl() } : {};
+  const db = new PrismaClient(options);
   try { await db.admin.create({ data: { email, passwordHash: await hashPassword(password) } }); process.stdout.write('Administrator created.\n'); }
   finally { await db.$disconnect(); }
 }

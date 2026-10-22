@@ -37,6 +37,7 @@ jobs:
     env:
       # This database belongs only to this disposable job. Never use repository secrets here.
       DATABASE_URL: postgresql://petcorner_ci:disposable_ci_password@127.0.0.1:5432/petcorner_ci_test?schema=public
+      DIRECT_URL: postgresql://petcorner_ci:disposable_ci_password@127.0.0.1:5432/petcorner_ci_test?schema=public
       TEST_DATABASE_URL: postgresql://petcorner_ci:disposable_ci_password@127.0.0.1:5432/petcorner_ci_test?schema=public
       JWT_SECRET: ci-only-jwt-secret-never-valid-for-production-000000
       ORDER_TOKEN_SECRET: ci-only-receipt-secret-never-valid-for-production-111111

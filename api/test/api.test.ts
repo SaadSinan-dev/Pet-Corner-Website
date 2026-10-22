@@ -44,6 +44,11 @@ after(async () => {
 });
 const api = () => request(app.getHttpServer());
 const auth = () => ({ Authorization: `Bearer ${token}` });
+test('application and migration tables have RLS so Supabase public roles cannot bypass the Nest API', async () => {
+  const tables = await db.$queryRaw<{ relname: string; relrowsecurity: boolean }[]>`SELECT relname, relrowsecurity FROM pg_class WHERE relnamespace = 'public'::regnamespace AND relname IN ('Admin','Category','Product','ProductImage','StoreSettings','Order','OrderDeliveryHistory','OrderItem','OrderStatusHistory','_prisma_migrations')`;
+  assert.equal(tables.length, 10);
+  assert.ok(tables.every(table => table.relrowsecurity), 'Every application table must enable RLS; trusted Prisma owner connections still retain access.');
+});
 const productBody = () => ({ name: 'Pet Corner اختبار', slug: `test-${randomUUID()}`, shortDescription: 'وصف للاختبار', description: 'منتج لاختبار قاعدة البيانات الحقيقية', price: 12500, stock: 10, categoryId, images: [{ url: '/images/product-food.svg', alt: 'منتج' }] });
 async function product(overrides: Record<string, unknown> = {}) {
   const r = await api().post('/api/v1/admin/products').set(auth()).send({ ...productBody(), ...overrides });
