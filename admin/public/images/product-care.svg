@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" role="img" aria-labelledby="title desc">
+  <title id="title">Illustrated pet grooming set</title>
+  <desc id="desc">Generic demo product illustration of a cream and blue grooming bottle beside a wooden brush.</desc>
+  <defs>
+    <linearGradient id="bottle" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#dedbcf"/><stop offset=".2" stop-color="#f7f4e9"/><stop offset=".65" stop-color="#fffdf4"/><stop offset="1" stop-color="#dedbcf"/></linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dbb897"/><stop offset=".5" stop-color="#c79770"/><stop offset="1" stop-color="#ae7957"/></linearGradient>
+  </defs>
+  <path fill="#eef1ef" d="M0 0h640v640H0z"/>
+  <ellipse cx="307" cy="528" rx="171" ry="20" fill="#103f6b" opacity=".09"/>
+  <path d="M237 168h86v36c0 20 39 26 40 71l6 224q1 27-26 29H211q-27-2-26-29l6-224c1-45 46-51 46-71z" fill="url(#bottle)"/>
+  <path d="M234 126h92v55h-92z" fill="#103f6b"/>
+  <rect x="242" y="104" width="76" height="27" rx="7" fill="#2c75c8"/>
+  <path d="M264 105V83h107q15 0 15 13v12h-25V99h-74v6z" fill="#103f6b"/>
+  <path d="M239 141h82" stroke="#49779b" stroke-width="2"/>
+  <path d="M193 294h171l3 154H189z" fill="#2c75c8"/>
+  <circle cx="278" cy="352" r="28" fill="#eaf0e9"/>
+  <path d="M267 354c-1-7 6-15 11-15s12 8 11 15c-1 7-7 5-11 5s-10 2-11-5z" fill="#103f6b"/>
+  <g fill="#103f6b"><ellipse cx="265" cy="338" rx="3.5" ry="5" transform="rotate(-25 265 338)"/><ellipse cx="273" cy="332" rx="3.5" ry="5"/><ellipse cx="283" cy="332" rx="3.5" ry="5"/><ellipse cx="291" cy="338" rx="3.5" ry="5" transform="rotate(25 291 338)"/></g>
+  <rect x="235" y="400" width="86" height="5" rx="2.5" fill="#f4f5ed"/>
+  <rect x="252" y="415" width="52" height="3" rx="1.5" fill="#cadff1"/>
+  <path d="M219 247q-8 10-9 29l-4 191" fill="none" stroke="#fffdf5" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+  <g transform="rotate(24 434 396)">
+    <rect x="414" y="374" width="35" height="150" rx="17.5" fill="url(#wood)"/>
+    <rect x="424" y="468" width="15" height="37" rx="7.5" fill="#aa7656" opacity=".3"/>
+    <rect x="376" y="248" width="112" height="163" rx="52" fill="url(#wood)"/>
+    <rect x="385" y="256" width="94" height="143" rx="45" fill="#103f6b"/>
+    <g fill="#d8e1dc">
+      <circle cx="411" cy="280" r="3"/><circle cx="432" cy="276" r="3"/><circle cx="453" cy="280" r="3"/>
+      <circle cx="400" cy="300" r="3"/><circle cx="421" cy="299" r="3"/><circle cx="443" cy="299" r="3"/><circle cx="464" cy="300" r="3"/>
+      <circle cx="399" cy="322" r="3"/><circle cx="421" cy="322" r="3"/><circle cx="443" cy="322" r="3"/><circle cx="465" cy="322" r="3"/>
+      <circle cx="400" cy="344" r="3"/><circle cx="421" cy="344" r="3"/><circle cx="443" cy="344" r="3"/><circle cx="464" cy="344" r="3"/>
+      <circle cx="411" cy="366" r="3"/><circle cx="432" cy="367" r="3"/><circle cx="453" cy="366" r="3"/>
+      <circle cx="421" cy="383" r="3"/><circle cx="443" cy="383" r="3"/>
+    </g>
+  </g>
+</svg>

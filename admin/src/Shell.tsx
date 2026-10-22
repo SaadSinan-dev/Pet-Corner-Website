@@ -1,0 +1,22 @@
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Boxes, ChevronLeft, ExternalLink, LogOut, Menu, Moon, PawPrint, Settings, ShoppingBag, Sun, Tags, X } from 'lucide-react'
+import { useAuth } from './auth'
+const links = [{ path: '/orders', label: 'الطلبات', icon: ShoppingBag }, { path: '/products', label: 'المنتجات', icon: Boxes }, { path: '/categories', label: 'الفئات', icon: Tags }, { path: '/settings', label: 'إعدادات المتجر', icon: Settings }]
+export function ThemeButton() {
+  const dark = useSyncExternalStore(callback => { window.addEventListener('admin-theme', callback); return () => window.removeEventListener('admin-theme', callback) }, () => document.documentElement.dataset.theme === 'dark')
+  return <button type="button" className="theme-button" onClick={() => { const value = !dark; document.documentElement.dataset.theme = value ? 'dark' : 'light'; try { localStorage.setItem('pet-corner-admin-theme', value ? 'dark' : 'light') } catch { /* Theme remains usable without storage. */ } window.dispatchEvent(new Event('admin-theme')) }} aria-label={dark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}>{dark ? <Sun size={19} /> : <Moon size={19} />}<span>{dark ? 'الوضع الفاتح' : 'الوضع الداكن'}</span></button>
+}
+function Navigation({ close }: { close?: () => void }) {
+  const { logout, user } = useAuth()
+  return <><Link to="/orders" className="brand" onClick={close}><img src="/images/logo-original.png" alt="Pet Corner" width="66" height="66" /><span><strong dir="ltr">PET CORNER</strong><small>مساحة إدارة المتجر</small></span></Link><div className="nav-caption">مساحة العمل</div><nav aria-label="التنقل الرئيسي">{links.map(({ path, label, icon: Icon }) => <NavLink to={path} key={path} onClick={close}><Icon size={20} strokeWidth={1.6} /><span>{label}</span><ChevronLeft size={15} className="nav-chevron" /></NavLink>)}</nav><div className="sidebar-bottom"><a href={import.meta.env.VITE_STOREFRONT_URL || 'http://localhost:5174'} target="_blank" rel="noreferrer" className="store-link"><ExternalLink size={17} />زيارة المتجر<ExternalLink size={13} /></a><ThemeButton /><div className="account"><span className="avatar"><PawPrint size={20} /></span><span><strong>حساب الإدارة</strong><small dir="ltr">{user?.email}</small></span></div><button className="logout" onClick={logout}><LogOut size={17} />تسجيل الخروج</button></div></>
+}
+export default function Shell() {
+  const [openPath, setOpenPath] = useState<string | null>(null); const dialogRef = useRef<HTMLDialogElement>(null); const location = useLocation(); const open = openPath === location.pathname
+  useEffect(() => { window.scrollTo(0, 0) }, [location.pathname])
+  useEffect(() => { if (!open) return; const dialog = dialogRef.current; dialog?.showModal(); const previous = document.body.style.overflow; document.body.style.overflow = 'hidden'; return () => { dialog?.close(); document.body.style.overflow = previous } }, [open])
+  useEffect(() => { const media = window.matchMedia('(min-width: 1024px)'); const close = () => { if (media.matches) setOpenPath(null) }; media.addEventListener('change', close); return () => media.removeEventListener('change', close) }, [])
+  const current = links.find(l => location.pathname.startsWith(l.path))?.label || 'إدارة المتجر'
+  return <div className="app-shell"><a href="#main" className="skip-link">انتقل إلى المحتوى</a><aside className="desktop-sidebar"><Navigation /></aside><div className="workspace"><div className="topbar"><div className="topbar-title"><button className="icon-button menu-toggle" onClick={() => setOpenPath(location.pathname)} aria-label="فتح قائمة الإدارة" aria-expanded={open}><Menu size={22} /></button><span>إدارة المتجر</span><ChevronLeft size={14} /><strong>{current}</strong></div><span className="topbar-brand" dir="ltr">Pet Corner</span></div><main id="main" tabIndex={-1}><Outlet /></main><footer className="admin-footer"><span>Pet Corner · كل تفصيل، بعناية.</span><span>لوحة إدارة المتجر</span></footer></div>{open && <dialog ref={dialogRef} className="mobile-drawer" onCancel={() => setOpenPath(null)} onClick={e => { if (e.target === e.currentTarget) setOpenPath(null) }} aria-label="قائمة الإدارة"><button className="icon-button drawer-close" onClick={() => setOpenPath(null)} aria-label="إغلاق قائمة الإدارة"><X /></button><Navigation close={() => setOpenPath(null)} /></dialog>}</div>
+}
+

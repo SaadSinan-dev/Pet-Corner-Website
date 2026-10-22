@@ -1,0 +1,13 @@
+# Automated deployment design
+
+Authority: latest user brief 5ce96bab-9da1-4a15-a9da-e3ca683470d2 supersedes external provisioning work in d264df4b-4e05-481c-930a-c09e3831d067. Perform local implementation and verification now; user will create/connect external services and enter credentials. Do not create projects, authenticate accounts or provision external databases.
+
+Keep existing React storefront, independent admin, NestJS/Prisma/PostgreSQL and all data. There is no Git repository metadata locally. Select `main` as the documented production branch to configure consistently when the owner creates/connects the repository. No push or remote repository creation in this task.
+
+Use Cloudflare Pages native Git integration for two independent builds. Each uses the root checkout and an explicit checked Pages build command, absolute HTTPS API URL, accurate site origin, SPA fallback, security headers and revision metadata. Public Vite values only. Render is the prepared backend target, using the existing Dockerfile, managed PostgreSQL, a persistent uploads disk and native Git auto-deploy after CI checks pass. This does not provision or purchase Render services. Keep provider substitution possible through environment values.
+
+Fix existing relative /uploads image records in storefront against the API origin, including product/category/hero and metadata; preserve /images assets on the storefront origin. Backend validates deployment URLs, persistence configuration and bounded proxy trust. No seed/reset or database write during builds. Migrations run on service startup after successful build/checks; schema-changing release requires a verified backup as an operator precondition. Preserve nullable delivery and exact idempotency replay.
+
+GitHub Actions: main pushes and PRs, least read-only permissions, separate disposable PostgreSQL databases, lint/types/tests/build for all applications and isolated real-browser commerce scenario. No production secrets or database connection in test jobs. Pages native builds enforce their own frontend checks; full-repository gate for production is branch protection plus required CI before main merge. Render additionally waits for CI on the commit. No claim native Pages waits for every unrelated GitHub check.
+
+Local acceptance: fresh tests/build, production URL guards, cross-origin image loading from an actual isolated API, protected mutations, upload/product/order/quote flow, persistence after API restart where locally feasible, migration/backup scripts safe to run against explicitly selected environments, and deployment configuration validation. Public runtime/read-only smoke utility must refuse local or insecure production URLs; all mutable public testing remains unexecuted without owner access.

@@ -1,0 +1,11 @@
+node_modules
+api
+admin
+backups
+dist
+.env*
+.local
+test-results
+playwright-report
+docs
+e2e

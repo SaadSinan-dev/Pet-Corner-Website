@@ -1,0 +1,16 @@
+# Pet Corner production upgrade
+
+User authority: complete brief at C:/Users/saads/.codex/attachments/8e388854-9a71-4488-a41c-4d5fb84e487d/Pasted text.txt. User explicitly requests immediate implementation, no plan-only pause. No Git metadata or dashboard exists; preserve root storefront and api/, add standalone admin/ Vite application on 5175.
+
+## Decisions
+Keep existing Nest/Prisma/Postgres, transaction-based inventory/idempotency/private receipts, and additive migrations. No resets. New orders have deliveryFee=null and total=null until an authenticated administrator sets deliveryFee. Existing historical fee/total values stay intact. Governorate replaces fee region selection; legacy regionId payloads must remain replayable for stored pending attempts. New receipt includes governorate, regionName legacy compatibility, deliveryFee:number|null,total:number|null, and configured whatsappNumber. No unconfigured contact fallback.
+
+Settings extensions (flat API fields): whatsappNumber:string|null, socialLinks:{label,url}[], heroEyebrow:string,heroTitle:string,heroDescription:string,heroButtonText:string,heroImageUrl:string|null,footerText:string,checkoutMessage:string,deliveryPolicy:string. Existing pages/currency/contact/checkouts remain. Product and Category gain position:number for ordering; images retain input array ordering. New order input governorate:string (Syrian governorate) with legacy regionId accepted for recovery. PATCH /admin/orders/:id/delivery {deliveryFee:number}; total computed by server. Admin orders accept search/status/page/limit. GET /auth/me verifies the bearer session. Health /api/v1/health for readiness. Protected admin bearer JWT retained in application memory, no default credentials.
+
+Production must not expose demo products. Preserve local demo records but identify them explicitly, with server-side production exclusion and tests. New production database remains empty and checkout disabled until configured. WhatsApp is only a configured wa.me link with an encoded prepared message and explicit customer-send copy. Never launch it automatically on order creation.
+
+## UX
+Light default on first visit regardless of OS, remembered dark choice. Transparent original logo in pre-React splash/favicons, no imposed minimum duration. React mount removes splash; timeout/error escape makes app failure actionable. Reduced-motion supported. Native dialog RTL right-side drawer with focus/escape/overlay/scroll lock; desktop remains independent. Shared brand palette: ink navy, clear blue, warm ivory, muted teal; calmer tables/forms in admin. Refine storefront visual rhythm, product cards/detail/cart/receipt, all user-editable Hero/footer/content consumed.
+
+## Verification
+Preserve previous risk tests while updating changed shipping expectations; add null-to-quoted delivery, permissions, order privacy, demo production guard and content ordering. Browser: create via admin UI -> storefront -> real order -> admin order -> quote -> status -> receipt; isolated fixtures only. Splash, drawer keyboard/focus, light default, saved theme, WhatsApp contents and no auto-send, loading/empty/error. Both apps widths 320/360/375/390/430/768/1024/1280/1440, both themes. Build/lint/typecheck/test; inspect deployment and honestly report Docker daemon availability.

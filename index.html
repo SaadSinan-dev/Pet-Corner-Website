@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#103f6b" />
+    <meta name="description" content="Pet Corner — طعام وألعاب ومستلزمات عناية للقطط والكلاب. كل ما يحتاجه رفيقك، في مكان واحد." />
+    <title>Pet Corner — كل ما يحتاجه رفيقك</title>
+    <script>try{document.documentElement.dataset.theme=localStorage.getItem('pet-corner-theme')==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
+    <style>
+      html{background:#fbfbf9;color:#183e55}html[data-theme=dark]{background:#101f2a;color:#e2edf5}body{margin:0}
+      #startup-splash{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#fbfbf9;color:#103f6b;transition:opacity .16s ease,visibility .16s;font-family:Arial,sans-serif}
+      [data-theme=dark] #startup-splash{background:#101f2a;color:#dfecf8}[data-theme=dark] .splash-mark{background:#faf8f2;border-radius:50%}
+      .splash-content{text-align:center;padding:24px;max-width:360px}.splash-mark{width:150px;height:150px;margin:0 auto 22px;position:relative}.splash-mark img{width:100%;height:100%;object-fit:contain;animation:logo-enter .55s cubic-bezier(.2,.7,.2,1) both}.splash-ring{position:absolute;inset:-8px;border:1px solid #2c70b328;border-bottom-color:#2c70b3;border-radius:50%;animation:splash-orbit 1.4s linear infinite}.splash-name{font-size:19px;letter-spacing:3px;font-weight:600;margin:0 0 11px}.splash-caption{font-size:13px;line-height:1.9;opacity:.75;margin:0}.splash-paws{display:flex;justify-content:center;gap:9px;margin-top:24px}.splash-paws i{width:5px;height:5px;background:#2b71b3;border-radius:50%;animation:splash-step 1.1s ease-in-out infinite}.splash-paws i:nth-child(2){animation-delay:.12s}.splash-paws i:nth-child(3){animation-delay:.24s}#startup-splash[data-ready=true]{opacity:0;visibility:hidden;pointer-events:none}.splash-failure{display:none;font-size:14px;line-height:1.9}.splash-failure button{border:1px solid currentColor;background:transparent;color:inherit;padding:12px 22px;border-radius:5px;font-size:14px;cursor:pointer}#startup-splash[data-failed=true] .splash-failure{display:block}#startup-splash[data-failed=true] .splash-caption,#startup-splash[data-failed=true] .splash-paws{display:none}#startup-splash[data-failed=true] .splash-ring{animation:none;border-color:#2b71b344}
+      @keyframes logo-enter{from{opacity:0;transform:translateY(8px) scale(.94)}to{opacity:1;transform:none}}@keyframes splash-orbit{to{transform:rotate(360deg)}}@keyframes splash-step{50%{opacity:.3;transform:translateY(-3px)}}@media(prefers-reduced-motion:reduce){#startup-splash,#startup-splash *{animation:none!important;transition:none!important}}
+    </style>
+  </head>
+  <body>
+    <div id="startup-splash" role="status" aria-label="جارٍ فتح Pet Corner"><div class="splash-content"><div class="splash-mark"><span class="splash-ring" aria-hidden="true"></span><img src="/images/logo-original.png" alt="شعار Pet Corner" width="150" height="150" /></div><p class="splash-name" dir="ltr">PET CORNER</p><p class="splash-caption">ركنٌ صغير، لرفقةٍ كبيرة.</p><div class="splash-paws" aria-hidden="true"><i></i><i></i><i></i></div><div class="splash-failure"><p>تعذّر فتح المتجر. تحقق من اتصالك وأعد المحاولة.</p><button id="boot-retry" type="button">إعادة تحميل المتجر</button></div></div></div>
+    <noscript><style>#startup-splash{display:none}</style><p style="padding:40px;text-align:center">فعّل JavaScript لفتح المتجر وإتمام الطلبات.</p></noscript>
+    <div id="root"></div>
+    <script src="/boot.js"></script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

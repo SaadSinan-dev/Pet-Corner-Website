@@ -1,0 +1,11 @@
+{
+  email {$TLS_EMAIL}
+}
+{$STORE_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy web:80
+}
+{$ADMIN_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy admin:80
+}

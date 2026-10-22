@@ -1,0 +1,53 @@
+{
+  "name": "pet-corner",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint src vite.config.ts api/src api/scripts api/prisma e2e playwright.config.ts scripts/deployment-config.mjs scripts/pages-build.mjs scripts/public-smoke.mjs tests/deployment",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc -b",
+    "test:e2e": "node scripts/test-browser.mjs",
+    "dev:api": "npm --prefix api run dev",
+    "build:all": "npm run build && npm --prefix admin run build && npm --prefix api run build",
+    "dev:admin": "npm --prefix admin run dev",
+    "test:admin": "npm --prefix admin test",
+    "seo:sitemap": "node scripts/generate-sitemap.mjs",
+    "test:deploy": "node --test tests/deployment/*.test.mjs",
+    "pages:build:storefront": "node scripts/pages-build.mjs storefront",
+    "pages:build:admin": "node scripts/pages-build.mjs admin",
+    "verify:public": "node scripts/public-smoke.mjs"
+  },
+  "dependencies": {
+    "@fontsource/dm-sans": "^5.3.0",
+    "@fontsource/ibm-plex-sans-arabic": "^5.3.0",
+    "@hookform/resolvers": "^5.2.2",
+    "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/react-query": "^5.104.5",
+    "lucide-react": "^1.61.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-hook-form": "^7.90.0",
+    "react-router-dom": "^7.18.4",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^30.1.3",
+    "oxlint": "^1.88.0",
+    "sharp": "^0.35.5",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.5"
+  }
+}

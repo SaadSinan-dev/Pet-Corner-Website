@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+model Admin {
+  id String @id @default(uuid())
+  email String @unique
+  passwordHash String
+  active Boolean @default(true)
+  createdAt DateTime @default(now())
+}
+model Category {
+  id String @id @default(uuid())
+  name String
+  slug String @unique
+  image String?
+  active Boolean @default(true)
+  position Int @default(0)
+  products Product[]
+  createdAt DateTime @default(now())
+}
+model Product {
+  id String @id @default(uuid())
+  name String
+  slug String @unique
+  shortDescription String
+  description String
+  sku String? @unique
+  price Int
+  compareAtPrice Int?
+  stock Int @default(0)
+  featured Boolean @default(false)
+  active Boolean @default(true)
+  position Int @default(0)
+  isDemo Boolean @default(false)
+  categoryId String
+  category Category @relation(fields: [categoryId], references: [id])
+  images ProductImage[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([active, categoryId, createdAt])
+  @@index([active, price])
+  @@index([active, isDemo, position])
+}
+model ProductImage {
+  id String @id @default(uuid())
+  url String
+  alt String
+  position Int @default(0)
+  productId String
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  @@index([productId, position])
+}
+model StoreSettings {
+  id String @id @default("store")
+  storeName String @default("Pet Corner")
+  currency String @default("SYP")
+  currencyLabel String @default("ل.س")
+  demoMode Boolean @default(false)
+  codEnabled Boolean @default(false)
+  checkoutEnabled Boolean @default(false)
+  contactPhone String?
+  contactEmail String?
+  whatsappNumber String?
+  socialLinks Json @default("[]")
+  heroEyebrow String @default("")
+  heroTitle String @default("")
+  heroDescription String @default("")
+  heroButtonText String @default("")
+  heroImageUrl String?
+  footerText String @default("")
+  checkoutMessage String @default("سيتم تأكيد تكلفة التوصيل والإجمالي النهائي معك عبر واتساب بعد مراجعة تفاصيل الطلب")
+  deliveryPolicy String @default("")
+  deliveryRegions Json @default("[]")
+  pages Json @default("{}")
+  updatedAt DateTime @updatedAt
+}
+model Order {
+  id String @id @default(uuid())
+  orderCode String @unique
+  idempotencyKey String @unique
+  payloadHash String
+  status OrderStatus @default(PENDING)
+  customerName String
+  phone String
+  regionId String?
+  regionName String
+  governorate String
+  city String
+  address String
+  notes String?
+  subtotal Int
+  deliveryFee Int?
+  total Int?
+  currency String
+  inventoryRestored Boolean @default(false)
+  items OrderItem[]
+  history OrderStatusHistory[]
+  deliveryHistory OrderDeliveryHistory[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([createdAt, status])
+  @@index([status, createdAt])
+}
+model OrderDeliveryHistory {
+  id String @id @default(uuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  previousFee Int?
+  deliveryFee Int
+  total Int
+  adminId String
+  createdAt DateTime @default(now())
+  @@index([orderId, createdAt])
+}
+model OrderItem {
+  id String @id @default(uuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  name String
+  price Int
+  quantity Int
+  @@index([orderId])
+}
+model OrderStatusHistory {
+  id String @id @default(uuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status OrderStatus
+  adminId String?
+  createdAt DateTime @default(now())
+  @@index([orderId, createdAt])
+}

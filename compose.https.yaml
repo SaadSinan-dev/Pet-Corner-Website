@@ -1,0 +1,24 @@
+# Optional public edge. Requires real DNS names, ports80/443 and an ACME-capable host.
+services:
+  edge:
+    image: caddy:2-alpine
+    environment:
+      STORE_DOMAIN: ${STORE_DOMAIN:?Set your actual storefront DNS name}
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN:?Set your actual admin DNS name}
+      TLS_EMAIL: ${TLS_EMAIL:?Set a certificate contact email}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+      admin:
+        condition: service_healthy
+volumes:
+  caddy-data:
+  caddy-config:

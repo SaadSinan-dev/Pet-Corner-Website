@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" role="img" aria-labelledby="title desc">
+  <title id="title">Illustrated navy pet bowl</title>
+  <desc id="desc">Generic demo product illustration of a deep navy ceramic pet bowl.</desc>
+  <defs>
+    <linearGradient id="ceramic" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#235a87"/><stop offset=".6" stop-color="#103f6b"/><stop offset="1" stop-color="#0a2e50"/></linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#467da7"/><stop offset="1" stop-color="#23567f"/></linearGradient>
+    <radialGradient id="inside"><stop stop-color="#082a47"/><stop offset=".8" stop-color="#0c3457"/><stop offset="1" stop-color="#17496f"/></radialGradient>
+  </defs>
+  <path fill="#e9eff3" d="M0 0h640v640H0z"/>
+  <ellipse cx="320" cy="490" rx="205" ry="25" fill="#103f6b" opacity=".1"/>
+  <path d="m118 298 29 145c5 42 76 62 173 62s168-20 173-62l29-145z" fill="url(#ceramic)"/>
+  <ellipse cx="320" cy="298" rx="203" ry="85" fill="url(#rim)"/>
+  <ellipse cx="320" cy="298" rx="175" ry="62" fill="url(#inside)"/>
+  <path d="M163 288c23-33 85-50 157-50 69 0 131 17 156 48" fill="none" stroke="#80a3bb" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+  <path d="m153 359 14 65c4 16 13 23 27 27" fill="none" stroke="#78a2c3" stroke-width="6" stroke-linecap="round" opacity=".35"/>
+  <path d="M198 479q122 27 244-1" fill="none" stroke="#49759a" stroke-width="3" opacity=".4"/>
+  <g fill="#b9d0e0" opacity=".86" transform="translate(320 415)">
+    <path d="M-29 16c-2-10 10-27 17-29 7-2 7 6 12 6s5-8 12-6c7 2 19 19 17 29-2 14-19 6-29 6s-27 8-29-6z"/>
+    <ellipse cx="-25" cy="-15" rx="7" ry="10" transform="rotate(-25 -25 -15)"/>
+    <ellipse cx="-9" cy="-26" rx="7" ry="10" transform="rotate(-8 -9 -26)"/>
+    <ellipse cx="9" cy="-26" rx="7" ry="10" transform="rotate(8 9 -26)"/>
+    <ellipse cx="25" cy="-15" rx="7" ry="10" transform="rotate(25 25 -15)"/>
+  </g>
+</svg>

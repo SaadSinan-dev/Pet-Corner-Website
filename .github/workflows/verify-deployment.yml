@@ -1,0 +1,46 @@
+name: Verify public deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      storefront:
+        description: Actual storefront HTTPS origin
+        type: string
+        required: true
+      admin:
+        description: Actual admin HTTPS origin
+        type: string
+        required: true
+      api:
+        description: Actual API HTTPS URL ending in /api/v1
+        type: string
+        required: true
+      revision:
+        description: Exact deployed commit SHA
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    name: Read-only public smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      # Inputs stay data, never interpolated directly into a shell program.
+      CHECK_STORE: ${{ inputs.storefront }}
+      CHECK_ADMIN: ${{ inputs.admin }}
+      CHECK_API: ${{ inputs.api }}
+      CHECK_REVISION: ${{ inputs.revision }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Verify public health, origins, private APIs, SPA routes and revision
+        run: node scripts/public-smoke.mjs "--store=$CHECK_STORE" "--admin=$CHECK_ADMIN" "--api=$CHECK_API" "--revision=$CHECK_REVISION"

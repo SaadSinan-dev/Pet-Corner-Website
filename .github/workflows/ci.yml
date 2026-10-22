@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    # Keep this name stable: configure it as a required check on main.
+    name: Quality checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: petcorner_ci
+          POSTGRES_PASSWORD: disposable_ci_password
+          POSTGRES_DB: petcorner_ci_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U petcorner_ci -d petcorner_ci_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      # This database belongs only to this disposable job. Never use repository secrets here.
+      DATABASE_URL: postgresql://petcorner_ci:disposable_ci_password@127.0.0.1:5432/petcorner_ci_test?schema=public
+      TEST_DATABASE_URL: postgresql://petcorner_ci:disposable_ci_password@127.0.0.1:5432/petcorner_ci_test?schema=public
+      JWT_SECRET: ci-only-jwt-secret-never-valid-for-production-000000
+      ORDER_TOKEN_SECRET: ci-only-receipt-secret-never-valid-for-production-111111
+      STORAGE_PROVIDER: local
+      PUBLIC_UPLOAD_BASE_URL: /uploads
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Install storefront dependencies
+        run: npm ci
+
+      - name: Install admin dependencies
+        run: npm --prefix admin ci
+
+      - name: Install API dependencies
+        run: npm --prefix api ci
+
+      - name: Generate Prisma client
+        run: npm --prefix api run db:generate
+
+      - name: Lint storefront, API and browser tests
+        run: npm run lint
+
+      - name: Lint admin
+        run: npm --prefix admin run lint
+
+      - name: Check storefront types
+        run: npm run typecheck
+
+      - name: Check admin types
+        run: npm --prefix admin run typecheck
+
+      - name: Check API types
+        run: npm --prefix api run typecheck
+
+      - name: Test deployment safeguards
+        run: npm run test:deploy
+
+      - name: Test storefront
+        run: npm test
+
+      - name: Test admin
+        run: npm --prefix admin test
+
+      - name: Migrate disposable API test database
+        run: npm --prefix api run db:migrate:test
+
+      - name: Test API against PostgreSQL
+        run: npm --prefix api test
+        env:
+          NODE_ENV: test
+
+      - name: Build all three applications
+        run: npm run build:all
+
+      - name: Install Chromium and Linux browser dependencies
+        run: npx playwright install --with-deps chromium
+
+      - name: Test isolated browser commerce flow
+        id: browser
+        # The wrapper creates another uniquely named _test database using this service's CREATEDB user.
+        # It creates its own temporary admin and never contacts production.
+        run: npm run test:e2e
+
+      - name: Retain safe browser evidence
+        if: ${{ always() && steps.browser.outcome != 'skipped' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: browser-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: warn
+          # Explicit allowlist: no traces, videos, logs, credentials, uploaded files or database dumps.
+          path: |
+            test-results/**/*.png
+            test-results/**/store-responsive-matrix.json
+            test-results/**/admin-responsive-matrix.json
+            test-results/**/persisted-order-no-private-token.json
